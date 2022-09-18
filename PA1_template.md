@@ -1,42 +1,36 @@
 ---
 title: "Reproducible Research: Peer Assessment 1"
 author: rparrish
-date: "`r Sys.Date()`"
+date: "2022-09-18"
 output: 
   html_document:
     keep_md: true
 ---
 
-```{r}
-#| label: setup
 
+```r
 library(tidyverse, warn.conflicts = FALSE)
 library(glue)
 library(ggplot2)
 library(scales, warn.conflicts = FALSE)
 
 options(scipen=999)
-
 ```
 
 
 ## Loading and preprocessing the data
 
-```{r}
-#| label: load data
 
+```r
 # read data directy from zip into a tibble
 activity <- readr::read_csv(here::here("activity.zip"), col_types = cols())
-
-
 ```
 
 
 ## What is mean total number of steps taken per day?
 
-```{r}
-#| label: mean steps per day
 
+```r
 # get the total steps for each day
 steps_per_day <- 
     activity %>%
@@ -51,15 +45,13 @@ average_steps_per_day <-
     summarise(
         mean = round(mean(total_steps, na.rm = TRUE), 2), 
         median = round(median(total_steps, na.rm = TRUE), 2))
-
 ```
 
-- mean steps per day: `r average_steps_per_day$mean`
-- median steps per day: `r average_steps_per_day$median` 
+- mean steps per day: 9354.23
+- median steps per day: 10395 
 
-```{r}
-#| label: histogram of daily steps
 
+```r
 steps_per_day %>%
     ggplot(aes(x = total_steps)) + 
     geom_histogram(bins = 20) + 
@@ -71,16 +63,15 @@ steps_per_day %>%
     ) + 
     scale_y_continuous(labels = label_number(accuracy = 1)) + 
     theme_minimal()
-
-
 ```
+
+![](PA1_template_files/figure-html/histogram of daily steps-1.png)<!-- -->
 
 
 ## What is the average daily activity pattern?
 
-```{r}
-#| label: daily activity pattern
 
+```r
 steps_per_interval <- 
     activity %>%
     group_by(interval) %>%
@@ -95,11 +86,10 @@ max_mean_steps_per_interval <-
     select(interval, mean_steps)
 ```
 
-The maximum average number of steps per interval  was `r max_mean_steps_per_interval$mean_steps` steps at interval `r max_mean_steps_per_interval$interval`. "),
+The maximum average number of steps per interval  was 206 steps at interval 835. "),
 
-```{r}
-#| label: time series average steps by interval
 
+```r
 steps_per_interval %>%
     ggplot(aes(x = interval, y = mean_steps)) + 
     geom_line() + 
@@ -111,17 +101,17 @@ steps_per_interval %>%
     ) + 
     #scale_y_continuous(labels = label_number(accuracy = 1)) + 
     theme_minimal()
-
 ```
+
+![](PA1_template_files/figure-html/time series average steps by interval-1.png)<!-- -->
 
 
 
 ## Imputing missing values
 
 
-```{r}
-#| label: missing values
 
+```r
 # get the total count of missing values of steps
 
 missing_steps <- 
@@ -149,21 +139,19 @@ average_steps_per_day_imputed <-
     summarise(
         mean = round(mean(total_steps, na.rm = TRUE),2), 
         median = round(median(total_steps, na.rm = TRUE), 2)) 
-    
 ```
 
-There were `r missing_steps$n` records with missing values.  
+There were 2304 records with missing values.  
 
 The strategy for imputing missing values was to replace NA values with the mean value for that interval. 
 
 The impact was that the mean and median total steps per day were closer to the same values. 
 
-- _imputed_ mean steps per day: `r average_steps_per_day_imputed$mean`
-- _imputed_ median steps per day: `r average_steps_per_day_imputed$median` 
+- _imputed_ mean steps per day: 10766.19
+- _imputed_ median steps per day: 10766.19 
 
-```{r}
-#| label: histogram of imputed daily steps 
 
+```r
 steps_per_day_imputed %>%
     ggplot(aes(x = total_steps)) + 
     geom_histogram(bins = 20) + 
@@ -175,9 +163,9 @@ steps_per_day_imputed %>%
     ) + 
     scale_y_continuous(labels = label_number(accuracy = 1)) + 
     theme_minimal()
-
-
 ```
+
+![](PA1_template_files/figure-html/histogram of imputed daily steps-1.png)<!-- -->
 
 
 
@@ -185,9 +173,5 @@ steps_per_day_imputed %>%
 
 ## Are there differences in activity patterns between weekdays and weekends?
 
-```{r}
-#| label: weekday/weekend comparison 
 
-
-```
 
