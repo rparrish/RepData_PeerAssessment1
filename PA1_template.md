@@ -65,7 +65,7 @@ steps_per_day %>%
     theme_minimal()
 ```
 
-![](PA1_template_files/figure-html/histogram of daily steps-1.png)<!-- -->
+![](PA1_template_files/figure-html/histogram_of_daily_steps-1.png)<!-- -->
 
 
 ## What is the average daily activity pattern?
@@ -86,7 +86,7 @@ max_mean_steps_per_interval <-
     select(interval, mean_steps)
 ```
 
-The maximum average number of steps per interval  was 206 steps at interval 835. "),
+The maximum average number of steps per interval  was 206 steps at interval 835. 
 
 
 ```r
@@ -103,7 +103,7 @@ steps_per_interval %>%
     theme_minimal()
 ```
 
-![](PA1_template_files/figure-html/time series average steps by interval-1.png)<!-- -->
+![](PA1_template_files/figure-html/time_series_average_steps_by_interval-1.png)<!-- -->
 
 
 
@@ -123,7 +123,10 @@ missing_steps <-
 activity_imputed <-
     activity %>%
     group_by(interval) %>%
-    mutate(steps = coalesce(steps, mean(steps, na.rm = TRUE)))
+    mutate(
+        #steps = coalesce(steps, mean(steps, na.rm = TRUE)), 
+        steps = coalesce(steps, median(steps, na.rm = TRUE))
+        )
 
 # get the total steps for each day
 steps_per_day_imputed <- 
@@ -143,12 +146,12 @@ average_steps_per_day_imputed <-
 
 There were 2304 records with missing values.  
 
-The strategy for imputing missing values was to replace NA values with the mean value for that interval. 
+The strategy for imputing missing values was to replace NA values with the median value for that interval. 
 
-The impact was that the mean and median total steps per day were closer to the same values. 
+The impact was that the mean total steps per day were increased to be closer to the median steps per day, while the median steps per day was not affected. 
 
-- _imputed_ mean steps per day: 10766.19
-- _imputed_ median steps per day: 10766.19 
+- _imputed_ mean steps per day: 9503.87
+- _imputed_ median steps per day: 10395 
 
 
 ```r
@@ -165,7 +168,7 @@ steps_per_day_imputed %>%
     theme_minimal()
 ```
 
-![](PA1_template_files/figure-html/histogram of imputed daily steps-1.png)<!-- -->
+![](PA1_template_files/figure-html/histogram_of_imputed_daily_steps-1.png)<!-- -->
 
 
 
@@ -174,4 +177,35 @@ steps_per_day_imputed %>%
 ## Are there differences in activity patterns between weekdays and weekends?
 
 
+```r
+# add a day of week factor value
+activity_imputed_dow <- 
+    activity_imputed %>%
+    mutate(
+        dow = weekdays(date), 
+        week_day_end = as.factor(if_else(grepl("^S", dow), "weekend", "weekday"))
+           )
+
+steps_per_interval_imputed_dow <- 
+    activity_imputed_dow %>%
+    group_by(week_day_end, interval) %>%
+    summarise(
+        mean_steps = mean(steps, na.rm = TRUE), 
+        .groups = "drop")
+
+steps_per_interval_imputed_dow %>%
+    ggplot(aes(x = interval, y = mean_steps)) + 
+    geom_line() + 
+    facet_wrap( ~ week_day_end, ncol = 1) +
+    labs(
+        title = "Time series of the average steps per 5-minute interval by weekday/weekend", 
+        #subtitle = glue("Max average was {max_mean_steps_per_interval$mean_steps} steps at interval {max_mean_steps_per_interval$interval}. "),
+        x = "",
+        y = ""
+    ) + 
+    #scale_y_continuous(labels = label_number(accuracy = 1)) + 
+    theme_minimal()
+```
+
+![](PA1_template_files/figure-html/weekday_weekend_comparison-1.png)<!-- -->
 
